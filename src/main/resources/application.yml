@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: xml-db-importer
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:xmldb}
+    username: ${DB_USER:xmldb}
+    password: ${DB_PASSWORD:xmldb}
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+
+import:
+  source-url: ${IMPORT_SOURCE_URL:https://www.smartform.cz/download/kopidlno.xml.zip}
