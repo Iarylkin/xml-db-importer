@@ -18,3 +18,13 @@ This project is a take-home test assignment for **Trixi**, for the position of *
 > - The program should be written in Java (you can use any framework you know that makes the work easier).
 >   - Using Spring and/or Docker is a plus.
 > - There are no limits to creativity - feel free to show what you can do. We look forward to your innovative solution.
+
+## Running
+
+```bash
+docker compose up --build
+```
+
+This starts Postgres (with `schema.sql` applied automatically on first run), then the app, which downloads, parses and saves the data, and exits.
+
+Running without Docker requires a Postgres instance with the schema applied manually (see `src/main/resources/db/init/schema.sql`) and these environment variables set: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` (`DB_USER`/`DB_PASSWORD` have no default on purpose - see `docker-compose.yml` for the values used in the Docker setup).

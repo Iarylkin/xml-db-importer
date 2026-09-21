@@ -2,9 +2,9 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: xmldb
-      POSTGRES_USER: xmldb
-      POSTGRES_PASSWORD: xmldb
+      POSTGRES_DB: &db_name xmldb
+      POSTGRES_USER: &db_user xmldb
+      POSTGRES_PASSWORD: &db_password xmldb
     ports:
       - "5432:5432"
     volumes:
@@ -24,9 +24,9 @@ services:
     environment:
       DB_HOST: db
       DB_PORT: 5432
-      DB_NAME: xmldb
-      DB_USER: xmldb
-      DB_PASSWORD: xmldb
+      DB_NAME: *db_name
+      DB_USER: *db_user
+      DB_PASSWORD: *db_password
 
 volumes:
   pgdata:

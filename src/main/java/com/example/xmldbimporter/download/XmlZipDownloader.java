@@ -27,6 +27,7 @@ public class XmlZipDownloader {
         HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
         if (response.statusCode() != 200) {
+            response.body().close();
             throw new IOException("Failed to download file, HTTP status " + response.statusCode() + " (" + zipUrl + ")");
         }
 
@@ -38,6 +39,7 @@ public class XmlZipDownloader {
             }
         }
 
+        zip.close();
         throw new IOException("No XML file found inside the zip archive: " + zipUrl);
     }
 }
