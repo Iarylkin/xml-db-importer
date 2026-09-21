@@ -31,11 +31,11 @@ class ObecRepositoryTest {
     void updatesObecByResavingSameKod() {
         obecRepository.save(new Obec(573060L, "Kopidlno"));
 
-        obecRepository.save(new Obec(573060L, "Kopidlno (aktualizováno)"));
+        obecRepository.save(new Obec(573060L, "Kopidlno (updated)"));
 
         assertThat(obecRepository.count()).isEqualTo(1);
         assertThat(obecRepository.findById(573060L).get().getNazev())
-                .isEqualTo("Kopidlno (aktualizováno)");
+                .isEqualTo("Kopidlno (updated)");
     }
 
     @Test
