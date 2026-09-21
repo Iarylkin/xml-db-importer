@@ -12,7 +12,7 @@ class XmlParserTest {
 
     @Test
     void parsesObecAndCastObceWhileIgnoringUnrelatedNestedReferences() throws Exception {
-        try (InputStream xml = getClass().getResourceAsStream("/sample-vfr.xml")) {
+        try (InputStream xml = getClass().getResourceAsStream("/sample-obec-export.xml")) {
             ParsedData data = parser.parse(xml);
 
             assertThat(data.obec()).isNotNull();

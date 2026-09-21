@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Streaming (StAX) parser for ČÚZK's RÚIAN exchange format (VFR).
+ * Streaming (StAX) parser for the source XML exchange format.
  * Reads only what is needed to populate the DB:
  * - vf:Obec -> kod, nazev
  * - vf:CastObce -> kod, nazev, kod of the parent obec (nested vf:Obec/vf:Kod reference)
@@ -21,7 +21,8 @@ import java.util.List;
  * Any element occurrence that does not yield a complete record (see
  * {@link ObecData#isComplete()} / {@link CastObceData#isComplete()}) is
  * silently discarded, which also protects against unrelated nested
- * references to "Obec"/"CastObce" that other RÚIAN object types may contain.
+ * references to "Obec"/"CastObce" that other object types in the source
+ * format may contain.
  */
 @Component
 public class XmlParser {

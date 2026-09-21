@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Trimmed-down fixture modelled on the real ČÚZK RÚIAN exchange format (VFR)
-  for Kopidlno (https://www.smartform.cz/download/kopidlno.xml.zip). Only
+  Trimmed-down fixture modelled on the real source export format for
+  Kopidlno (https://www.smartform.cz/download/kopidlno.xml.zip). Only
   vf:Obec/vf:CastObce and a couple of representative "decoy" references
   (vf:Ulice, vf:StavebniObjekt) are kept - everything else the real file
   contains (geometry, KatastralniUzemi, Zsj, Parcely, ...) is irrelevant to
