@@ -11,7 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Validates a {@link ParsedData} result and persists it: the obec, then its cast obce records,
@@ -34,8 +36,8 @@ public class ImportService {
      * Validates {@code data} and saves it. Validation runs to completion before any repository
      * call, so a rejected import never writes a partial result.
      *
-     * @throws IllegalStateException if the obec is missing/incomplete, or a cast obce references
-     *     a different obec than the one that was parsed
+     * @throws IllegalStateException if the obec is missing/incomplete, a cast obce references
+     *     a different obec than the one that was parsed, or two cast obce share the same kod
      */
     @Transactional
     public void save(ParsedData data) {
@@ -44,11 +46,16 @@ public class ImportService {
         }
 
         Long obecKod = data.obec().kod();
+        Set<Long> seenCastObceKod = new HashSet<>();
         for (CastObceData castObceData : data.castObceList()) {
             if (!obecKod.equals(castObceData.kodObce())) {
                 throw new IllegalStateException(
                         "CastObce with kod " + castObceData.kod() + " references obec " + castObceData.kodObce()
                                 + ", but the parsed XML's obec has kod " + obecKod);
+            }
+            if (!seenCastObceKod.add(castObceData.kod())) {
+                throw new IllegalStateException(
+                        "Duplicate CastObce kod " + castObceData.kod() + " found in the parsed XML");
             }
         }
 

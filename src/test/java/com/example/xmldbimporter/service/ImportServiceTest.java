@@ -74,4 +74,23 @@ class ImportServiceTest {
         assertThat(obecRepository.findAll()).isEmpty();
         assertThat(castObceRepository.findAll()).isEmpty();
     }
+
+    @Test
+    void rejectsDuplicateCastObceKodAndSavesNothing() {
+        importService = new ImportService(obecRepository, castObceRepository);
+
+        ParsedData data = new ParsedData(
+                new ObecData(573060L, "Kopidlno"),
+                List.of(
+                        new CastObceData(111111L, "Kopidlno", 573060L),
+                        new CastObceData(111111L, "Kopidlno (duplicate)", 573060L)
+                )
+        );
+
+        assertThatThrownBy(() -> importService.save(data))
+                .isInstanceOf(IllegalStateException.class);
+
+        assertThat(obecRepository.findAll()).isEmpty();
+        assertThat(castObceRepository.findAll()).isEmpty();
+    }
 }
