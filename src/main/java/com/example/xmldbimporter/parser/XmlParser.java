@@ -1,5 +1,7 @@
 package com.example.xmldbimporter.parser;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.xml.stream.XMLInputFactory;
@@ -11,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Streaming (StAX) parser for ČÚZK's RÚIAN exchange format (VFR).
+ * Streaming (StAX) parser for the source XML exchange format.
  * Reads only what is needed to populate the DB:
  * - vf:Obec -> kod, nazev
  * - vf:CastObce -> kod, nazev, kod of the parent obec (nested vf:Obec/vf:Kod reference)
@@ -21,11 +23,20 @@ import java.util.List;
  * Any element occurrence that does not yield a complete record (see
  * {@link ObecData#isComplete()} / {@link CastObceData#isComplete()}) is
  * silently discarded, which also protects against unrelated nested
- * references to "Obec"/"CastObce" that other RÚIAN object types may contain.
+ * references to "Obec"/"CastObce" that other object types in the source
+ * format may contain.
  */
 @Component
 public class XmlParser {
 
+    private static final Logger LOG = LoggerFactory.getLogger(XmlParser.class);
+
+    /**
+     * Streams through {@code xmlInputStream} once and extracts the obec/cast obce data. Does not
+     * close {@code xmlInputStream} - that remains the caller's responsibility.
+     *
+     * @throws XMLStreamException if the input is not well-formed XML
+     */
     public ParsedData parse(InputStream xmlInputStream) throws XMLStreamException {
         XMLInputFactory factory = XMLInputFactory.newInstance();
         factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
@@ -33,7 +44,10 @@ public class XmlParser {
 
         XMLStreamReader reader = factory.createXMLStreamReader(xmlInputStream);
         try {
-            return doParse(reader);
+            ParsedData data = doParse(reader);
+            LOG.debug("Parsed obec={} with {} cast obce record(s)",
+                    data.obec() != null ? data.obec().kod() : "none", data.castObceList().size());
+            return data;
         } finally {
             reader.close();
         }
@@ -43,16 +57,11 @@ public class XmlParser {
         List<String> stack = new ArrayList<>();
         StringBuilder text = new StringBuilder();
 
+        ObecAccumulator obecAcc = new ObecAccumulator();
         ObecData obec = null;
+
+        CastObceAccumulator castObceAcc = null;
         List<CastObceData> castObceList = new ArrayList<>();
-
-        Long obecKod = null;
-        String obecNazev = null;
-
-        Long castObceKod = null;
-        String castObceNazev = null;
-        Long castObceKodObce = null;
-        boolean insideCastObce = false;
 
         while (reader.hasNext()) {
             int event = reader.next();
@@ -60,10 +69,7 @@ public class XmlParser {
                 case XMLStreamConstants.START_ELEMENT -> {
                     String localName = reader.getLocalName();
                     if ("CastObce".equals(localName)) {
-                        insideCastObce = true;
-                        castObceKod = null;
-                        castObceNazev = null;
-                        castObceKodObce = null;
+                        castObceAcc = new CastObceAccumulator();
                     }
                     stack.add(localName);
                     text.setLength(0);
@@ -74,33 +80,31 @@ public class XmlParser {
                     String value = text.toString().trim();
                     text.setLength(0);
                     String parent = stack.isEmpty() ? null : stack.get(stack.size() - 1);
+                    boolean insideCastObce = stack.contains("CastObce");
 
                     if ("Kod".equals(localName) && "Obec".equals(parent)) {
                         Long kod = parseLongOrNull(value);
                         if (insideCastObce) {
-                            castObceKodObce = kod;
+                            castObceAcc.kodObce = kod;
                         } else {
-                            obecKod = kod;
+                            obecAcc.kod = kod;
                         }
                     } else if ("Nazev".equals(localName) && "Obec".equals(parent) && !insideCastObce) {
-                        obecNazev = value;
+                        obecAcc.nazev = value;
                     } else if ("Kod".equals(localName) && "CastObce".equals(parent)) {
-                        castObceKod = parseLongOrNull(value);
+                        castObceAcc.kod = parseLongOrNull(value);
                     } else if ("Nazev".equals(localName) && "CastObce".equals(parent)) {
-                        castObceNazev = value;
+                        castObceAcc.nazev = value;
                     } else if ("Obec".equals(localName) && !insideCastObce) {
                         if (obec == null) {
-                            ObecData candidate = new ObecData(obecKod, obecNazev);
-                            if (candidate.isComplete()) {
-                                obec = candidate;
-                            }
+                            obec = obecAcc.toCompleteDataOrNull();
                         }
                     } else if ("CastObce".equals(localName)) {
-                        insideCastObce = false;
-                        CastObceData candidate = new CastObceData(castObceKod, castObceNazev, castObceKodObce);
-                        if (candidate.isComplete()) {
+                        CastObceData candidate = castObceAcc.toCompleteDataOrNull();
+                        if (candidate != null) {
                             castObceList.add(candidate);
                         }
+                        castObceAcc = null;
                     }
                 }
                 default -> {
@@ -119,6 +123,29 @@ public class XmlParser {
             return Long.parseLong(value.trim());
         } catch (NumberFormatException e) {
             return null;
+        }
+    }
+
+    /** Mutable accumulator for the obec currently being read - one field to reset per new field, not several. */
+    private static final class ObecAccumulator {
+        private Long kod;
+        private String nazev;
+
+        private ObecData toCompleteDataOrNull() {
+            ObecData candidate = new ObecData(kod, nazev);
+            return candidate.isComplete() ? candidate : null;
+        }
+    }
+
+    /** Mutable accumulator for the vf:CastObce element currently being read. */
+    private static final class CastObceAccumulator {
+        private Long kod;
+        private String nazev;
+        private Long kodObce;
+
+        private CastObceData toCompleteDataOrNull() {
+            CastObceData candidate = new CastObceData(kod, nazev, kodObce);
+            return candidate.isComplete() ? candidate : null;
         }
     }
 }
