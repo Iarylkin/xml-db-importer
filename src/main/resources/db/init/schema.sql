@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS obec (
+    kod   BIGINT PRIMARY KEY,
+    nazev VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS cast_obce (
+    kod      BIGINT PRIMARY KEY,
+    nazev    VARCHAR(255) NOT NULL,
+    kod_obce BIGINT NOT NULL REFERENCES obec (kod)
+);
