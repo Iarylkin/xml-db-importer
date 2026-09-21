@@ -2,6 +2,7 @@ package com.example.xmldbimporter.service;
 
 import com.example.xmldbimporter.model.CastObce;
 import com.example.xmldbimporter.model.Obec;
+import com.example.xmldbimporter.parser.CastObceData;
 import com.example.xmldbimporter.parser.ParsedData;
 import com.example.xmldbimporter.repository.CastObceRepository;
 import com.example.xmldbimporter.repository.ObecRepository;
@@ -31,7 +32,16 @@ public class ImportService {
             throw new IllegalStateException("XML does not contain a complete vf:Obec element (kod and nazev)");
         }
 
-        Obec obec = obecRepository.save(new Obec(data.obec().kod(), data.obec().nazev()));
+        Long obecKod = data.obec().kod();
+        for (CastObceData castObceData : data.castObceList()) {
+            if (!obecKod.equals(castObceData.kodObce())) {
+                throw new IllegalStateException(
+                        "CastObce with kod " + castObceData.kod() + " references obec " + castObceData.kodObce()
+                                + ", but the parsed XML's obec has kod " + obecKod);
+            }
+        }
+
+        Obec obec = obecRepository.save(new Obec(obecKod, data.obec().nazev()));
 
         List<CastObce> castObceList = data.castObceList().stream()
                 .map(c -> new CastObce(c.kod(), c.nazev(), obec))

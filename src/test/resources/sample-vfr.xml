@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Trimmed-down fixture modelled on the real ČÚZK RÚIAN exchange format (VFR)
+  for Kopidlno (https://www.smartform.cz/download/kopidlno.xml.zip). Only
+  vf:Obec/vf:CastObce and a couple of representative "decoy" references
+  (vf:Ulice, vf:StavebniObjekt) are kept - everything else the real file
+  contains (geometry, KatastralniUzemi, Zsj, Parcely, ...) is irrelevant to
+  the parser and omitted.
+-->
+<vf:VymennyFormat xmlns:vf="urn:cz:isvs:ruian:schemas:VymennyFormatTypy:v1"
+                   xmlns:obi="urn:cz:isvs:ruian:schemas:ObecIntTypy:v1"
+                   xmlns:coi="urn:cz:isvs:ruian:schemas:CastObceIntTypy:v1"
+                   xmlns:oki="urn:cz:isvs:ruian:schemas:OkresIntTypy:v1"
+                   xmlns:uli="urn:cz:isvs:ruian:schemas:UliceIntTypy:v1"
+                   xmlns:soi="urn:cz:isvs:ruian:schemas:StavObjIntTypy:v1">
+    <vf:Data>
+        <vf:Obce>
+            <vf:Obec>
+                <obi:Kod>573060</obi:Kod>
+                <obi:Nazev>Kopidlno</obi:Nazev>
+                <obi:Okres>
+                    <oki:Kod>3604</oki:Kod>
+                </obi:Okres>
+            </vf:Obec>
+        </vf:Obce>
+        <vf:CastiObci>
+            <vf:CastObce>
+                <coi:Kod>69299</coi:Kod>
+                <coi:Nazev>Kopidlno</coi:Nazev>
+                <coi:Obec>
+                    <obi:Kod>573060</obi:Kod>
+                </coi:Obec>
+            </vf:CastObce>
+            <vf:CastObce>
+                <coi:Kod>69302</coi:Kod>
+                <coi:Nazev>Ledkov</coi:Nazev>
+                <coi:Obec>
+                    <obi:Kod>573060</obi:Kod>
+                </coi:Obec>
+            </vf:CastObce>
+            <vf:CastObce>
+                <coi:Kod>31801</coi:Kod>
+                <coi:Nazev>Drahoraz</coi:Nazev>
+                <coi:Obec>
+                    <obi:Kod>573060</obi:Kod>
+                </coi:Obec>
+            </vf:CastObce>
+        </vf:CastiObci>
+        <vf:Ulice>
+            <vf:Ulice>
+                <uli:Kod>165310</uli:Kod>
+                <uli:Nazev>Bezručova</uli:Nazev>
+                <uli:Obec>
+                    <obi:Kod>573060</obi:Kod>
+                </uli:Obec>
+            </vf:Ulice>
+        </vf:Ulice>
+        <vf:StavebniObjekty>
+            <vf:StavebniObjekt>
+                <soi:Kod>1</soi:Kod>
+                <soi:CastObce>
+                    <coi:Kod>69299</coi:Kod>
+                </soi:CastObce>
+            </vf:StavebniObjekt>
+        </vf:StavebniObjekty>
+    </vf:Data>
+</vf:VymennyFormat>

@@ -58,4 +58,20 @@ class ImportServiceTest {
         assertThatThrownBy(() -> importService.save(data))
                 .isInstanceOf(IllegalStateException.class);
     }
+
+    @Test
+    void rejectsCastObceReferencingADifferentObecAndSavesNothing() {
+        importService = new ImportService(obecRepository, castObceRepository);
+
+        ParsedData data = new ParsedData(
+                new ObecData(573060L, "Kopidlno"),
+                List.of(new CastObceData(111111L, "Kopidlno", 999999L))
+        );
+
+        assertThatThrownBy(() -> importService.save(data))
+                .isInstanceOf(IllegalStateException.class);
+
+        assertThat(obecRepository.findAll()).isEmpty();
+        assertThat(castObceRepository.findAll()).isEmpty();
+    }
 }
