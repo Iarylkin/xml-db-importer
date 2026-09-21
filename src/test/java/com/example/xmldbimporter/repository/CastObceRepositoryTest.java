@@ -38,11 +38,11 @@ class CastObceRepositoryTest {
         Obec obec = obecRepository.save(new Obec(573060L, "Kopidlno"));
         castObceRepository.save(new CastObce(111111L, "Kopidlno", obec));
 
-        castObceRepository.save(new CastObce(111111L, "Kopidlno (aktualizováno)", obec));
+        castObceRepository.save(new CastObce(111111L, "Kopidlno (updated)", obec));
 
         assertThat(castObceRepository.count()).isEqualTo(1);
         assertThat(castObceRepository.findById(111111L).get().getNazev())
-                .isEqualTo("Kopidlno (aktualizováno)");
+                .isEqualTo("Kopidlno (updated)");
     }
 
     @Test
