@@ -1,5 +1,7 @@
 package com.example.xmldbimporter.download;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -20,8 +22,16 @@ import java.util.zip.ZipInputStream;
 @Component
 public class XmlZipDownloader {
 
+    private static final Logger LOG = LoggerFactory.getLogger(XmlZipDownloader.class);
+
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
+    /**
+     * @param zipUrl URL of the zip archive to download
+     * @return an open stream positioned at the first {@code .xml} entry found in the archive;
+     *     the caller is responsible for closing it
+     * @throws IOException if the HTTP response status isn't 200, or the archive contains no XML entry
+     */
     public InputStream downloadXml(String zipUrl) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder(URI.create(zipUrl)).GET().build();
         HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
@@ -35,6 +45,7 @@ public class XmlZipDownloader {
         ZipEntry entry;
         while ((entry = zip.getNextEntry()) != null) {
             if (!entry.isDirectory() && entry.getName().toLowerCase().endsWith(".xml")) {
+                LOG.debug("Found XML entry '{}' in the downloaded archive", entry.getName());
                 return zip;
             }
         }

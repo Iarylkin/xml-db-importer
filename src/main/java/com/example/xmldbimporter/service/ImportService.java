@@ -13,6 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Validates a {@link ParsedData} result and persists it: the obec, then its cast obce records,
+ * in one transaction.
+ */
 @Service
 public class ImportService {
 
@@ -26,6 +30,13 @@ public class ImportService {
         this.castObceRepository = castObceRepository;
     }
 
+    /**
+     * Validates {@code data} and saves it. Validation runs to completion before any repository
+     * call, so a rejected import never writes a partial result.
+     *
+     * @throws IllegalStateException if the obec is missing/incomplete, or a cast obce references
+     *     a different obec than the one that was parsed
+     */
     @Transactional
     public void save(ParsedData data) {
         if (data.obec() == null) {
@@ -39,6 +50,10 @@ public class ImportService {
                         "CastObce with kod " + castObceData.kod() + " references obec " + castObceData.kodObce()
                                 + ", but the parsed XML's obec has kod " + obecKod);
             }
+        }
+
+        if (data.castObceList().isEmpty()) {
+            LOG.warn("XML for obec '{}' (kod {}) contains no cast obce records", data.obec().nazev(), obecKod);
         }
 
         Obec obec = obecRepository.save(new Obec(obecKod, data.obec().nazev()));

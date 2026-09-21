@@ -1,5 +1,7 @@
 package com.example.xmldbimporter.parser;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.xml.stream.XMLInputFactory;
@@ -27,6 +29,14 @@ import java.util.List;
 @Component
 public class XmlParser {
 
+    private static final Logger LOG = LoggerFactory.getLogger(XmlParser.class);
+
+    /**
+     * Streams through {@code xmlInputStream} once and extracts the obec/cast obce data. Does not
+     * close {@code xmlInputStream} - that remains the caller's responsibility.
+     *
+     * @throws XMLStreamException if the input is not well-formed XML
+     */
     public ParsedData parse(InputStream xmlInputStream) throws XMLStreamException {
         XMLInputFactory factory = XMLInputFactory.newInstance();
         factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
@@ -34,7 +44,10 @@ public class XmlParser {
 
         XMLStreamReader reader = factory.createXMLStreamReader(xmlInputStream);
         try {
-            return doParse(reader);
+            ParsedData data = doParse(reader);
+            LOG.debug("Parsed obec={} with {} cast obce record(s)",
+                    data.obec() != null ? data.obec().kod() : "none", data.castObceList().size());
+            return data;
         } finally {
             reader.close();
         }

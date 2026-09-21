@@ -5,6 +5,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/**
+ * A municipality (obec), identified by its RÚIAN {@code kod} rather than a generated id.
+ */
 @Entity
 @Table(name = "obec")
 public class Obec {

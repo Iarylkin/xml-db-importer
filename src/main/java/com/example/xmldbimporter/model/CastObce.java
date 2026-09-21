@@ -8,6 +8,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+/**
+ * A part of a municipality (část obce), identified by its own {@code kod} and linked to the
+ * {@link Obec} it belongs to via {@code kod_obce}.
+ */
 @Entity
 @Table(name = "cast_obce")
 public class CastObce {

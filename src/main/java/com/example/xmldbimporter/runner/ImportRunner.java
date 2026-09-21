@@ -35,6 +35,13 @@ public class ImportRunner implements CommandLineRunner {
         this.importService = importService;
     }
 
+    /**
+     * Runs the full pipeline once. The URL to import from is the first command-line argument if
+     * given, otherwise {@link ImportProperties#sourceUrl()}.
+     *
+     * @throws Exception if the download, parsing, or save step fails - Spring Boot then fails
+     *     startup and exits with a non-zero status
+     */
     @Override
     public void run(String... args) throws Exception {
         String url = args.length > 0 ? args[0] : properties.sourceUrl();
@@ -44,7 +51,7 @@ public class ImportRunner implements CommandLineRunner {
             ParsedData data = parser.parse(xml);
             importService.save(data);
         } catch (Exception e) {
-            LOG.error("Import failed: {}", e.getMessage());
+            LOG.error("Import failed", e);
             throw e;
         }
     }
