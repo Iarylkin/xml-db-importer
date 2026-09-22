@@ -42,12 +42,17 @@ public class XmlZipDownloader {
         }
 
         ZipInputStream zip = new ZipInputStream(response.body());
-        ZipEntry entry;
-        while ((entry = zip.getNextEntry()) != null) {
-            if (!entry.isDirectory() && entry.getName().toLowerCase().endsWith(".xml")) {
-                LOG.debug("Found XML entry '{}' in the downloaded archive", entry.getName());
-                return zip;
+        try {
+            ZipEntry entry;
+            while ((entry = zip.getNextEntry()) != null) {
+                if (!entry.isDirectory() && entry.getName().toLowerCase().endsWith(".xml")) {
+                    LOG.debug("Found XML entry '{}' in the downloaded archive", entry.getName());
+                    return zip;
+                }
             }
+        } catch (IOException e) {
+            zip.close();
+            throw e;
         }
 
         zip.close();
